@@ -1,0 +1,128 @@
+id: tokenAIzer
+name: tokenAIzer
+description: A custom policy to implement tokenizing driven by Einstein AI
+category: Custom
+type: custom
+supportedJavaVersions: ["8", "11", "17"]
+resourceLevelSupported: true
+encryptionSupported: false
+standalone: true
+requiredCharacteristics: []
+providedCharacteristics: []
+configuration:
+  - propertyName: requestProtected	
+    name: Protect Request Payload?
+    description: Check if you want to tokenize the request payload
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: responseProtected	
+    name: Protect Response Payload?
+    description: Check if you want to tokenize the response payload
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: detokenizationAllowed	
+    name: Do you want to support detokenization?
+    description: Check if you want to enable the tokens for detokenization process. This will impact performance.
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: pciEnabled	
+    name: PCI DSS	
+    description: Check if you want to protect request/response payloads following PCI DSS guidance
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: hipaaEnabled	
+    name: HIPAA
+    description: Check if you want to protect request/response payloads following HIPAA guidance
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: gdprEnabled	
+    name: GDPR
+    description: Check if you want to protect request/response payloads following GDPR guidance
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: ccpaEnabled	
+    name: CCPA
+    description: Check if you want to protect request/response payloads following CCPA guidance
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: ferpaEnabled	
+    name: FERPA
+    description: Check if you want to protect request/response payloads following FERPA guidance
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: glbaEnabled	
+    name: GLBA
+    description: Check if you want to protect request/response payloads following GLBA guidance
+    type: boolean
+    optional: true
+    sensitive: false
+    allowMultiple: false
+  - propertyName: model
+    name: Model
+    description: Supported models for Einstein
+    optional: true
+    allowMultiple: false
+    defaultValue: Azure OpenAI GPT 3.5 Turbo
+    type: radio
+    options:
+      - name: Anthropic Claude 3 Haiku on Amazon
+        value: "Anthropic Claude 3 Haiku on Amazon"
+      - name: Azure OpenAI Ada 002
+        value: "Azure OpenAI Ada 002"
+      - name: Azure OpenAI GPT 3.5 Turbo
+        value: "Azure OpenAI GPT 3.5 Turbo"
+      - name: Azure OpenAI GPT 3.5 Turbo 16k
+        value: "Azure OpenAI GPT 3.5 Turbo 16k"
+      - name: Azure OpenAI GPT 4 Turbo
+        value: "Azure OpenAI GPT 4 Turbo"
+      - name: OpenAI Ada 002
+        value: "OpenAI Ada 002"
+      - name: OpenAI GPT 3.5 Turbo
+        value: "OpenAI GPT 3.5 Turbo"
+      - name: OpenAI GPT 3.5 Turbo 16k
+        value: "OpenAI GPT 3.5 Turbo 16k"
+      - name: OpenAI GPT 4
+        value: "OpenAI GPT 4"
+      - name: OpenAI GPT 4 32k
+        value: "OpenAI GPT 4 32k"
+      - name: OpenAI GPT 4o (Omni)
+        value: "OpenAI GPT 4o (Omni)"
+      - name: OpenAI GPT 4 Turbo
+        value: "OpenAI GPT 4 Turbo"
+  - propertyName: einsteinClientId	
+    name: Client ID
+    description: The client ID to connect to the external client app required by Einstein
+    type: string
+    optional: false
+    sensitive: true
+    allowMultiple: false
+  - propertyName: einsteinClientSecret	
+    name: Client Secret
+    description: The client Secret to connect to the external client app required by Einstein
+    type: string
+    optional: false
+    sensitive: true
+    allowMultiple: false
+  - propertyName: einsteinSfOrg
+    name: Einstein Salesforce Org
+    description: The Salesforce Org where Einstein is running
+    type: string
+    optional: false
+    sensitive: true
+    allowMultiple: false
