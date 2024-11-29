@@ -23,7 +23,7 @@ Tokenizing names or addresses based on the regulation (e.g., GDPR anonymization 
 The policy uses an integration with the [**Einstein Trust Layer**](https://www.salesforce.com/artificial-intelligence/trusted-ai/) for tokenization of sensitive payloads. The process works as follows:
 
 1. **Context Enrichment**: The policy identifies which regulations apply to the payload (based on policy config) and enriches the context for tokenization.
-2. **Tokenization**: The payload is sent to Einstein AI, which generates obfuscated values based on the specified regulations. For this the policy creates a dynamic prompt, optimized for this purpose
+2. **Tokenization**: The payload is sent to Einstein AI, which generates obfuscated values based on the specified regulations. For this the policy creates a dynamic prompt, optimized for this purpose. NOTE: Please take into account that the models API (used by the MAC Einstein Connector) applies [rate-limiting](https://developer.salesforce.com/docs/einstein/genai/guide/rate-limits.html) that vary depending on the type of org you are using.
 3. **TO-DO: Detokenization (optional)**: If detokenization is enabled, the policy will flag the token and store it to allow future detokenization (not performed by this policy).
 
 ### Detailed Flow Explanation
