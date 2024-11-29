@@ -1,4 +1,4 @@
-Powered by [![.](https://github.com/MuleSoft-AI-Chain-Project/mule-einstein1-connector/blob/master/icon/icon.svg)](https://github.com/MuleSoft-AI-Chain-Project/mule-einstein1-connector)
+Powered by [<img src="https://github.com/MuleSoft-AI-Chain-Project/mule-einstein1-connector/blob/master/icon/icon.svg" width="80" height="80"/>](https://github.com/MuleSoft-AI-Chain-Project/mule-einstein1-connector)
 
 
 # Mule TokenAIzer Custom Policy
