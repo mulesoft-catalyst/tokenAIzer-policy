@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+			xmlns="http://www.mulesoft.org/schema/mule/core" 
+			xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+			xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy" 
+			xmlns:http-transform="http://www.mulesoft.org/schema/mule/http-policy-transform"
+			xmlns:mac-einstein="http://www.mulesoft.org/schema/mule/mac-einstein"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core
+													http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+													http://www.mulesoft.org/schema/mule/http
+													http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+													http://www.mulesoft.org/schema/mule/http-policy
+													http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd
+													http://www.mulesoft.org/schema/mule/http-policy-transform
+													http://www.mulesoft.org/schema/mule/http-policy-transform/current/mule-http-policy-transform.xsd
+													http://www.mulesoft.org/schema/mule/mac-einstein http://www.mulesoft.org/schema/mule/mac-einstein/current/mule-mac-einstein.xsd">
+
+  <mac-einstein:config name="Einstein_AI_Config">
+		<mac-einstein:connection clientId="{{{einsteinClientId}}}" clientSecret="{{{einsteinClientSecret}}}" salesforceOrg="{{{einsteinSfOrg}}}"/>
+	</mac-einstein:config>
+
+	<http-policy:proxy name="{{{policyId}}}">
+		<http-policy:source>
+			<set-variable value="You are a tokenizer service that processes payloads to identify and obfuscate sensitive information. Obfuscate data according to the rules defined for each regulation, maintaining the format and length of the original values. For example, replace '4111111111111111' with '***********1111'. Ensure the original structure and format is maintained, modifying only the sensitive values with the appropriate obfuscated format. If no sensitive fields are detected, return the original structure unchanged." variableName="prompt"/>
+			<set-variable value="" variableName="promptContext"/>
+		  <flow-ref name="enrich-context-flow" />
+			{{#if requestProtected}}
+				<logger level="DEBUG" message="#['Asking Eistein to tokenize Request Payload']" category="com.mule.policies.tokenAIzer" />
+      	<flow-ref name="ask-flow" />
+      	{{#if detokenizationAllowed}}
+ 						<flow-ref name="detokenizer-prepare-flow" />
+      	{{/if}}	
+			{{/if}}
+			<http-policy:execute-next/>
+			{{#if responseProtected}}
+			  <logger level="DEBUG" message="#['Asking Eistein to tokenize Response Payload']" category="com.mule.policies.tokenAIzer" />
+				<flow-ref name="ask-flow" />
+      	{{#if detokenizationAllowed}}
+ 						<flow-ref name="detokenizer-prepare-flow" />
+      	{{/if}}
+			{{/if}}
+		</http-policy:source>
+	</http-policy:proxy>
+	<flow name="enrich-context-flow">
+		<logger level="DEBUG" message="#['Enriching context']" category="com.mule.policies.tokenAIzer" />
+		<set-variable value='#[%dw 2.0
+														output application/java
+														---
+														(
+														    [
+														        if ({{{pciEnabled}}}) "PCI DSS: Focuses on protecting payment card and transaction data. Sensitive Data to Protect: Transaction ID, Card Number (PAN), CVV, Expiry Date, Cardholder name, billing address" else "",
+														        if ({{{hipaaEnabled}}}) "HIPAA: Protects health information in the US. Sensitive Data to Protect: Medical Information: Diagnoses, treatments. Patient Data: Name, DOB, SSN" else "",
+														        if ({{{gdprEnabled}}}) "GDPR: Protects personal data of EU citizens. Sensitive Data to Protect: Direct Identifiers: Name, email, phone, IP address. Indirect Identifiers: Postal address, financial data" else "",
+														        if ({{{ccpaEnabled}}}) "CCPA: Protects personal data of California residents. Sensitive Data to Protect: Identifiers: Name, email, phone, postal address. Activity Data: Browsing history, transactions" else "",
+														        if ({{{ferpaEnabled}}}) "FERPA: Protects educational records in the US. Sensitive Data to Protect: Student Information: Name, ID, grades. Family Information: Contact details, finances" else "",
+														        if ({{{glbaEnabled}}}) "GLBA: Regulates financial data protection in the US. Sensitive Data to Protect: Non-Public Financial Data: Account numbers, transactions, credit history. Personal Information: Name, SSN, address" else ""
+														    ] 
+														    filter ((item) -> item != "")
+														    joinBy ". \n"
+														)]' variableName="promptContext"/>
+	</flow>
+	<flow name="detokenizer-prepare-flow">
+		<logger level="DEBUG" message="#['Preparing detokenization for payload']" category="com.mule.policies.tokenAIzer" />
+	</flow>
+	<flow name="ask-flow">
+		<logger level="DEBUG" message="#['Asking Eistein to tokenize Request Payload']" category="com.mule.policies.tokenAIzer" />
+		<mac-einstein:chat-answer-prompt config-ref="Einstein_AI_Config" prompt="#[vars.prompt++'\nThe regulations to consider are '++ vars.promptContext ++ '\nThis is the payload to replace: \n' ++ write(payload, 'application/json')]" modelName="{{{model}}}"/>
+		<set-payload value="#[output json --- read(payload.generation.generatedText, 'application/json')]"/>
+	</flow>
+</mule>
